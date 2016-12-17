@@ -9,8 +9,13 @@ public class TargetPanel : ControlPanel {
     List<Unit> validTargets;
     IAction action;
 
+    //Object that controls the 3d visuals
+    GameObject mapInterface;
+
     // Use this for initialization
     void Start () {
+        //Used to communicate with 3d display
+        mapInterface = GameObject.Find("3DDisplay");
 
         //On prend un pointeur sur tous nos options menu
         choixMenu = new Image[MAX_TARGETS];
@@ -52,7 +57,11 @@ public class TargetPanel : ControlPanel {
             }
 
             if (validTargets.Count > 0)
+            {
                 transform.GetChild(0).gameObject.GetComponent<Image>().color = couleurSelection;
+                int index = 0;
+                mapInterface.SendMessage("SelectMonster", index);
+            }
         }
         else
         {
@@ -73,8 +82,10 @@ public class TargetPanel : ControlPanel {
             if (indexSelection < validTargets.Count - 1)
             {
                 choixMenu[indexSelection].color = couleurBase;
+                mapInterface.SendMessage("DeselectMonster", indexSelection);
                 ++indexSelection;
                 choixMenu[indexSelection].color = couleurSelection;
+                mapInterface.SendMessage("SelectMonster", indexSelection);
             }
         }
         else if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -82,8 +93,10 @@ public class TargetPanel : ControlPanel {
             if (indexSelection > 0)
             {
                 choixMenu[indexSelection].color = couleurBase;
+                mapInterface.SendMessage("DeselectMonster", indexSelection);
                 --indexSelection;
                 choixMenu[indexSelection].color = couleurSelection;
+                mapInterface.SendMessage("SelectMonster", indexSelection);
             }
         }
 
@@ -91,13 +104,18 @@ public class TargetPanel : ControlPanel {
         if (Input.GetKeyDown(KeyCode.Return))
         {
             action.AddTarget(validTargets[indexSelection]);
+            mapInterface.SendMessage("DeselectMonster", indexSelection);
             BattleEventHandler.AddPlayerAction(action);
         }
 
         //Cancel action
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            BattleEventHandler.ChangeState(BattleEventHandler.ActionState.ACTION);
+            //Check if it was a skill or normal attack
+            if(action.GetType() == typeof(UseSkill))
+                BattleEventHandler.ChangeState(BattleEventHandler.ActionState.SKILL);
+            else if(action.GetType() == typeof(Attack))
+                BattleEventHandler.ChangeState(BattleEventHandler.ActionState.ACTION);
         }
     }
 }

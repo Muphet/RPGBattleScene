@@ -20,11 +20,15 @@ public class UserInterface : MonoBehaviour
     SkillPanel SP;
     public SkillPanel SkillP { get { return SP; } }
 
+    //Object that controls the 3d visuals
+    GameObject mapInterface;
+
     public void Init(List<Character> characters)
     {
         //Initialisation des composantes
         AP = transform.FindChild("ActionPanel").GetComponent<ActionPanel>();
         TP = transform.FindChild("TargetPanel").GetComponent<TargetPanel>();
+        mapInterface = GameObject.Find("3DDisplay");
         CPContrainer = transform.FindChild("CharPanel").gameObject;
         CP = new CharacterPanel[4];
 
@@ -40,15 +44,6 @@ public class UserInterface : MonoBehaviour
         }
 
         SP = transform.FindChild("SkillPanel").gameObject.GetComponent<SkillPanel>();
-
-        //SP = new SkillPanel[8];
-        //SPContrainer = transform.FindChild("SkillPanel").gameObject;
-        //
-        //for (int i = 0; i < 8; i++)
-        //{
-        //    SP[i] = SPContrainer.transform.GetChild(i + 1).GetComponent<SkillPanel>();
-        //}
-
     }
 
     public void HighlightActiveCharacter(int index)
@@ -57,9 +52,17 @@ public class UserInterface : MonoBehaviour
         {
             if(CP[i] != null)
             {
-                CP[i].SetHighlight(i == index);
+                if(i == index)
+                {
+                    CP[i].SetHighlight(true);
+                    mapInterface.SendMessage("SelectPlayer", i);
+                }
+                else
+                {
+                    CP[i].SetHighlight(false);
+                    mapInterface.SendMessage("DeselectPlayer", i);
+                }
             }
         }
     }
-
 }

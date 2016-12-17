@@ -7,6 +7,7 @@ using UnityEngine;
 public class BattleEventHandler : MonoBehaviour
 {
     static UserInterface UI;
+    MapHandler manHandler;
     static ControlPanel activePanel;
 
     static ActionState battleState = ActionState.INIT;
@@ -25,8 +26,10 @@ public class BattleEventHandler : MonoBehaviour
     public void Start()
     {
         UI = GameObject.Find("Interface").GetComponent<UserInterface>();
+        manHandler = GameObject.Find("3DDisplay").GetComponent<MapHandler>();
         Init();
         UpdateInfo();
+        manHandler.Init(playerChars, monsters);
         ChangeState(ActionState.ACTION);   
     }
 
